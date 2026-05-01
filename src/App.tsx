@@ -17,6 +17,7 @@ export default function App() {
   const [view, setView] = useState<"landing" | "select" | "results">("landing");
   const [mood, setMood] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<{ songs: Song[]; insight: MoodInsight } | null>(null);
 
   const handleStart = () => setView("select");
@@ -24,13 +25,18 @@ export default function App() {
   const handleMoodSelect = async (selectedMood: string, category: MusicCategory, genre: MusicGenre | "All") => {
     setMood(selectedMood);
     setIsLoading(true);
+    setError(null);
     setView("results");
     
     try {
       const data = await getMusicRecommendations(selectedMood, category, genre);
+      if (!data.songs || data.songs.length === 0) {
+        throw new Error("No songs found for this mood. Try another vibe!");
+      }
       setResults(data);
-    } catch (error) {
-      console.error("Failed to get recommendations:", error);
+    } catch (err: any) {
+      console.error("Failed to get recommendations:", err);
+      setError(err?.message || "Oops! The musical universe is a bit quiet right now. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -39,6 +45,7 @@ export default function App() {
   const reset = () => {
     setView("select");
     setResults(null);
+    setError(null);
     setMood("");
   };
 
@@ -123,41 +130,60 @@ export default function App() {
               </button>
 
               {isLoading ? (
-                <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-8">
+                <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-8 px-4">
                   <div className="relative">
-                    <div className="w-24 h-24 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
-                    <Headphones size={40} className="absolute inset-0 m-auto text-purple-400 animate-pulse" />
+                    <div className="w-16 h-16 sm:w-24 sm:h-24 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
+                    <Headphones size={30} className="absolute inset-0 m-auto text-purple-400 animate-pulse lg:hidden" />
+                    <Headphones size={40} className="absolute inset-0 m-auto text-purple-400 animate-pulse hidden lg:block" />
                   </div>
                   <div className="text-center space-y-2">
-                    <h3 className="text-2xl font-display font-bold italic animate-pulse">Syncing with your emotions...</h3>
-                    <p className="text-white/40">Gathering perfect tracks from the musical universe</p>
+                    <h3 className="text-xl sm:text-2xl font-display font-bold italic animate-pulse">Syncing with your emotions...</h3>
+                    <p className="text-white/40 text-sm">Gathering tracks for your "{mood}" state</p>
                   </div>
+                </div>
+              ) : error ? (
+                <div className="min-h-[50vh] flex flex-col items-center justify-center text-center space-y-6 px-4">
+                  <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center text-red-500">
+                    <Music size={40} />
+                  </div>
+                  <div className="max-w-md space-y-2">
+                    <h3 className="text-2xl font-display font-bold text-red-400">Connection Interrupted</h3>
+                    <p className="text-white/60">{error}</p>
+                  </div>
+                  <button 
+                    onClick={reset}
+                    className="px-8 py-3 bg-white/5 border border-white/10 rounded-full font-bold hover:bg-white/10 transition-all"
+                  >
+                    Try Another Mood
+                  </button>
                 </div>
               ) : results && (
                 <div className="space-y-12">
                   <div className="grid lg:grid-cols-3 gap-8 items-start">
-                    {/* Mood Profile */}
-                    <div className="lg:col-span-1 glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] lg:sticky lg:top-24">
+                    {/* Mood Profile - Compact on mobile */}
+                    <div className="lg:col-span-1 glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] lg:sticky lg:top-24 flex lg:flex-col gap-4 lg:gap-0 items-center lg:items-start text-left">
                       <div 
-                        className="w-14 h-14 md:w-16 md:h-16 rounded-2xl mb-4 md:mb-6 flex items-center justify-center text-2xl md:text-3xl shadow-2xl relative"
+                        className="w-14 h-14 md:w-16 md:h-16 shrink-0 rounded-2xl md:mb-6 flex items-center justify-center text-2xl md:text-3xl shadow-2xl relative"
                         style={{ backgroundColor: results.insight.color + "30", color: results.insight.color }}
                       >
                         <div className="absolute inset-0 blur-2xl opacity-40 animate-pulse" style={{ backgroundColor: results.insight.color }} />
                         <Headphones size={28} />
                       </div>
                       
-                      <h3 className="text-xl md:text-2xl font-display font-extrabold mb-3 md:mb-4 uppercase tracking-tight italic">
-                        {results.insight.mood}
-                      </h3>
-                      
-                      <div className="p-4 bg-[#00F0FF]/5 border border-[#00F0FF]/10 rounded-2xl mb-6 md:mb-8">
-                        <p className="text-[9px] md:text-[10px] font-mono text-[#00F0FF] mb-1 uppercase tracking-tighter">AI Mood Insight</p>
-                        <p className="text-sm italic text-gray-300 leading-relaxed font-medium">
-                          "{results.insight.analysis}"
-                        </p>
+                      <div className="flex-1">
+                        <h3 className="text-lg md:text-2xl font-display font-extrabold mb-1 md:mb-4 uppercase tracking-tight italic">
+                          {results.insight.mood}
+                        </h3>
+                        
+                        <div className="hidden lg:block p-4 bg-[#00F0FF]/5 border border-[#00F0FF]/10 rounded-2xl mb-6 md:mb-8">
+                          <p className="text-[9px] md:text-[10px] font-mono text-[#00F0FF] mb-1 uppercase tracking-tighter">AI Mood Insight</p>
+                          <p className="text-sm italic text-gray-300 leading-relaxed font-medium">
+                            "{results.insight.analysis}"
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="space-y-4">
+                      <div className="hidden lg:flex flex-col gap-4 w-full">
                         <button className="w-full py-4 bg-[#7000FF] hover:bg-[#8224FF] text-white rounded-full font-display font-black flex items-center justify-center gap-2 transition-all shadow-xl shadow-[#7000FF]/20">
                           <Play fill="currentColor" size={18} />
                           Play All
@@ -170,16 +196,24 @@ export default function App() {
                     </div>
 
                     {/* Recommendations Grid */}
-                    <div className="lg:col-span-2 space-y-8">
+                    <div className="lg:col-span-2 space-y-6 md:space-y-8">
                       <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-display font-bold italic">RESONANCE TRACKS</h2>
-                        <span className="text-xs font-bold text-white/40 tracking-widest uppercase">8 Matches Found</span>
+                        <h2 className="text-xl md:text-2xl font-display font-bold italic">RESONANCE TRACKS</h2>
+                        <span className="text-[10px] font-bold text-white/40 tracking-widest uppercase">{results.songs.length} Matches</span>
                       </div>
                       
-                      <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="grid sm:grid-cols-2 gap-3 md:gap-4">
                         {results.songs.map((song, index) => (
                           <SongCard key={song.id} song={song} index={index} />
                         ))}
+                      </div>
+
+                      {/* AI insight visible on mobile here instead */}
+                      <div className="lg:hidden p-5 glass-card rounded-2xl bg-[#00F0FF]/5 border-[#00F0FF]/20">
+                        <p className="text-[9px] font-mono text-[#00F0FF] mb-2 uppercase tracking-widest">AI Mood Analysis</p>
+                        <p className="text-sm italic text-white/80 leading-relaxed">
+                          "{results.insight.analysis}"
+                        </p>
                       </div>
                     </div>
                   </div>

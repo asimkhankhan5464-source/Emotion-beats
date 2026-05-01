@@ -58,14 +58,14 @@ export function MoodSelector({ onMoodSelect, isLoading }: MoodSelectorProps) {
             </div>
           </div>
 
-          <div className="space-y-3 w-full flex-1">
+          <div className="space-y-3 w-full flex-1 min-w-0">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 text-center md:text-left">Genre Filter</p>
-            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+            <div className="flex overflow-x-auto pb-2 md:pb-0 md:flex-wrap gap-2 no-scrollbar md:justify-start">
               {GENRES.map((genre) => (
                 <button
                   key={genre}
                   onClick={() => setSelectedGenre(genre)}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all border whitespace-nowrap ${
                     selectedGenre === genre ? "bg-[#00F0FF] text-black border-[#00F0FF]" : "bg-white/5 text-white/40 border-white/10 hover:border-white/30"
                   }`}
                 >

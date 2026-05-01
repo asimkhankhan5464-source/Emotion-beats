@@ -44,24 +44,24 @@ export const SongCard: React.FC<SongCardProps> = ({ song, index }) => {
         </p>
       </div>
       
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-2">
         <a
           href={spotifyUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-2 rounded-full bg-black/40 hover:bg-black/60 border border-white/10 transition-all group/btn"
+          className="p-3 sm:p-2 rounded-full bg-black/40 hover:bg-black/60 border border-white/10 transition-all group/btn"
           title="Search on Spotify"
         >
-          <Music size={12} className="text-white/60 group-hover/btn:text-[#1DB954]" />
+          <Music size={16} className="sm:size-[14px] text-white/40 group-hover/btn:text-[#1DB954]" />
         </a>
         <a
           href={youtubeUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-2 rounded-full bg-black/40 hover:bg-black/60 border border-white/10 transition-all group/btn"
+          className="p-3 sm:p-2 rounded-full bg-black/40 hover:bg-black/60 border border-white/10 transition-all group/btn"
           title="Search on YouTube"
         >
-          <Youtube size={12} className="text-white/60 group-hover/btn:text-[#FF0000]" />
+          <Youtube size={16} className="sm:size-[14px] text-white/40 group-hover/btn:text-[#FF0000]" />
         </a>
       </div>
     </motion.div>

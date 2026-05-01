@@ -123,7 +123,7 @@ export default function App() {
             >
               <button 
                 onClick={reset}
-                className="flex items-center gap-2 text-white/60 hover:text-white transition-colors font-semibold"
+                className="flex items-center gap-2 text-white/60 hover:text-white transition-colors font-semibold p-2 -ml-2 rounded-lg hover:bg-white/5"
               >
                 <ArrowLeft size={20} />
                 New Mood
@@ -202,14 +202,14 @@ export default function App() {
                         <span className="text-[10px] font-bold text-white/40 tracking-widest uppercase">{results.songs.length} Matches</span>
                       </div>
                       
-                      <div className="grid sm:grid-cols-2 gap-3 md:gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                         {results.songs.map((song, index) => (
                           <SongCard key={song.id} song={song} index={index} />
                         ))}
                       </div>
 
                       {/* AI insight visible on mobile here instead */}
-                      <div className="lg:hidden p-5 glass-card rounded-2xl bg-[#00F0FF]/5 border-[#00F0FF]/20">
+                      <div className="lg:hidden p-5 glass-card rounded-2xl bg-[#00F0FF]/5 border-[#00F0FF]/20 shadow-inner">
                         <p className="text-[9px] font-mono text-[#00F0FF] mb-2 uppercase tracking-widest">AI Mood Analysis</p>
                         <p className="text-sm italic text-white/80 leading-relaxed">
                           "{results.insight.analysis}"

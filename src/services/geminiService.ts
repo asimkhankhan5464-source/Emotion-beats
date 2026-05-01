@@ -6,13 +6,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Song, MoodInsight, MusicCategory, MusicGenre } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
-
 export async function getMusicRecommendations(
   mood: string, 
   category: MusicCategory,
   genre: MusicGenre | "All"
 ): Promise<{ songs: Song[]; insight: MoodInsight }> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Gemini API key is not configured. Please ensure it is set in your environment.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
   try {
     const genreContext = genre === "All" ? "any popular genre" : `strictly ${genre}`;
     const prompt = `Recommend 8 specific, high-quality songs for someone feeling: ${mood}.
@@ -21,13 +26,13 @@ export async function getMusicRecommendations(
     - CATEGORY: Only ${category} music (e.g., if Bollywood, only Hindi/Indian songs).
     - GENRE: ${genreContext}.
     
-    For each song, provide a precise 'searchQuery' that includes the song name, artist, and terms like 'official audio' to ensure users find working links. 
-    Do NOT provide direct URLs as they often break. Provide a short 'moodMatch' explanation for each.
+    For each song, provide a precise 'searchQuery' that includes the song name, artist, and terms like 'official audio' (e.g. "Song Name Artist Name Official Audio"). 
+    Do NOT provide direct URLs. Provide a short 'moodMatch' explanation for each.
     
     Also, provide a short emotional insight (2 sentences) and a neon hex color for the UI.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
